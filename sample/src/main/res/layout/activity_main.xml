@@ -10,13 +10,12 @@
     <com.licrafter.exp.ExpandableHeader
         android:id="@+id/exp_header"
         android:layout_width="match_parent"
-        android:layout_height="500dp">
+        android:layout_height="wrap_content">
 
-        <ImageView
-            android:id="@+id/headerImage"
+        <com.licrafter.sample.view.CusViewPager
+            android:id="@+id/viewPager"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:scaleType="centerCrop"/>
+            android:layout_height="wrap_content"/>
     </com.licrafter.exp.ExpandableHeader>
 
     <com.licrafter.exp.ExpandableLayout

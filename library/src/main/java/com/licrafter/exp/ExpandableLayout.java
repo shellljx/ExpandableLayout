@@ -52,6 +52,14 @@ public class ExpandableLayout extends FrameLayout implements ExpandableHeader.He
     }
 
     @Override
+    protected void onFinishInflate() {
+        super.onFinishInflate();
+        if (getChildCount() > 1) {
+            throw new IllegalStateException("ExpandableLayout can host only one direct child");
+        }
+    }
+
+    @Override
     public boolean onInterceptTouchEvent(MotionEvent ev) {
         float y = ev.getRawY();
         switch (ev.getActionMasked()) {
@@ -110,14 +118,14 @@ public class ExpandableLayout extends FrameLayout implements ExpandableHeader.He
                 end = mMinMargin;
             }
         }
-        startAnimation(start, end);
+        startFlingAnimation(start, end);
     }
 
     public void collapse() {
-        startAnimation(getTopMargin(), mMinMargin);
+        startFlingAnimation(getTopMargin(), mMinMargin);
     }
 
-    private void startAnimation(int start, int end) {
+    private void startFlingAnimation(int start, int end) {
         if (mAnimator == null || !mAnimator.isRunning()) {
             mAnimator = ObjectAnimator.ofInt(this, "TopMargin", start, end);
             mAnimator.setDuration(300);

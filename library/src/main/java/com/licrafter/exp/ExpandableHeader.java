@@ -2,9 +2,7 @@ package com.licrafter.exp;
 
 import android.content.Context;
 import android.util.AttributeSet;
-import android.view.GestureDetector;
 import android.view.MotionEvent;
-import android.view.ViewConfiguration;
 import android.widget.FrameLayout;
 
 /**
@@ -15,6 +13,8 @@ public class ExpandableHeader extends FrameLayout {
 
     private HeaderCollapseListener mListener;
     private float mLastedY;
+    private int mThreshold;
+
 
     public ExpandableHeader(Context context) {
         this(context, null);
@@ -34,17 +34,22 @@ public class ExpandableHeader extends FrameLayout {
         switch (ev.getActionMasked()) {
             case MotionEvent.ACTION_DOWN:
                 mLastedY = y;
-                return true;
             case MotionEvent.ACTION_MOVE:
                 float dy = mLastedY - y;
-                if (Math.abs(dy) > 200 && dy > 0) {
-                    mListener.collapse();
+                if (Math.abs(dy) > mThreshold && dy > 0) {
+                    if (mListener != null) {
+                        mListener.collapse();
+                    }
                 }
                 break;
             case MotionEvent.ACTION_UP:
                 break;
         }
         return super.dispatchTouchEvent(ev);
+    }
+
+    public void setThreshold(int threshold) {
+        mThreshold = threshold;
     }
 
     public void setTopMargin(int topMargin) {
