@@ -134,6 +134,10 @@ public class ExpandableLayout extends FrameLayout implements ExpandableHeader.He
         }
     }
 
+    public void heightChange() {
+        initMargin(mHeader.getBottom());
+    }
+
     public void setTopMargin(int topMargin) {
         getMarginLayoutParams().topMargin = topMargin;
         if (getTopMargin() >= mHeader.getBottom()) {
@@ -173,17 +177,10 @@ public class ExpandableLayout extends FrameLayout implements ExpandableHeader.He
         }
         mHeader = header;
         mHeader.setCollapseListener(this);
-        post(new Runnable() {
-            @Override
-            public void run() {
-                mMaxMargin = mHeader.getBottom();
-                initMargin(mMaxMargin);
-                removeCallbacks(this);
-            }
-        });
+        initMargin(mHeader.getBottom());
     }
 
-    public void initMargin(int topMargin) {
+    private void initMargin(int topMargin) {
         getMarginLayoutParams().topMargin = topMargin;
         mMaxMargin = topMargin;
         requestLayout();

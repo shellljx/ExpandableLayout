@@ -76,6 +76,14 @@ public class ExpandableHeader extends FrameLayout {
         requestLayout();
     }
 
+    public void setHeight(int height) {
+        getMarginLayoutParams().height = height;
+        requestLayout();
+        if (mListener != null) {
+            mListener.heightChange();
+        }
+    }
+
     public MarginLayoutParams getMarginLayoutParams() {
         return (MarginLayoutParams) getLayoutParams();
     }
@@ -87,6 +95,8 @@ public class ExpandableHeader extends FrameLayout {
 
     public interface HeaderCollapseListener {
         void collapse();
+
+        void heightChange();
     }
 
 }

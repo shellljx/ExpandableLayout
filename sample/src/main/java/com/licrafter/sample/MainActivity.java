@@ -64,10 +64,9 @@ public class MainActivity extends AppCompatActivity {
             fullHeights.add(Utils.getDisplayWidth(MainActivity.this) * model.getHeight() / model.getWidth());
         }
         mHeaderPager.setAdapter(new BannerPagerAdapter(getApplicationContext(), banners));
-        mExpHeader.getMarginLayoutParams().height = fullHeights.get(0);
-
+        mExpHeader.setHeight(fullHeights.get(0));
         mExpLayout.setUpWithHeader(mExpHeader);
-
+        Utils.hideSystemUI(this);
         mHeaderPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
@@ -81,11 +80,7 @@ public class MainActivity extends AppCompatActivity {
                         (fullHeights.get(position + 1) == 0 ? fullHeights.get(0) : fullHeights.get(position + 1))
                                 * positionOffset);
 
-                //为ViewPager设置高度
-                mExpHeader.getLayoutParams().height = height;
-                mExpHeader.requestLayout();
-                mExpLayout.initMargin(mExpHeader.getBottom());
-                mExpLayout.requestLayout();
+                mExpHeader.setHeight(height);
             }
 
             @Override
@@ -98,6 +93,14 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
+    }
+
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+        if (hasFocus) {
+            Utils.hideSystemUI(this);
+        }
     }
 
     public class SampleAdapter extends RecyclerView.Adapter {

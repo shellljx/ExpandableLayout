@@ -1,5 +1,6 @@
 package com.licrafter.sample.repo;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -8,7 +9,7 @@ import java.util.List;
  **/
 public class Repo {
 
-    public static List<ImageModel> data;
+    public static List<ImageModel> data = new ArrayList<>();
 
     public static void initRepo() {
         data.add(new ImageModel("http://ci.xiaohongshu.com/2cc966e2-eed0-455c-be10-e1377a99b73c@r_1280w_1280h.jpg", 1280, 1280));
