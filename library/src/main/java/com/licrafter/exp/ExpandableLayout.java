@@ -154,7 +154,7 @@ public class ExpandableLayout extends FrameLayout implements ExpandableHeader.He
         return mMaxMargin - getTopMargin();
     }
 
-    private int getTopMargin() {
+    public int getTopMargin() {
         return getMarginLayoutParams().topMargin;
     }
 
@@ -185,6 +185,7 @@ public class ExpandableLayout extends FrameLayout implements ExpandableHeader.He
 
     public void initMargin(int topMargin) {
         getMarginLayoutParams().topMargin = topMargin;
+        mMaxMargin = topMargin;
         requestLayout();
     }
 

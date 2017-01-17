@@ -1,52 +1,101 @@
 package com.licrafter.sample;
 
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
+import android.content.Context;
+import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.licrafter.exp.ExpandableHeader;
 import com.licrafter.exp.ExpandableLayout;
-import com.licrafter.sample.view.CusViewPager;
+import com.licrafter.sample.repo.ImageModel;
+import com.licrafter.sample.repo.Repo;
+import com.licrafter.sample.utils.Utils;
+import com.squareup.picasso.Picasso;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
     private ExpandableHeader mExpHeader;
     private ExpandableLayout mExpLayout;
-    private CusViewPager mHeaderPager;
+    private ViewPager mHeaderPager;
     private RecyclerView mRecyclerview;
     private Toolbar mToolbar;
+
+    private List<ImageModel> banners = new ArrayList<>();
+    private List<Integer> fullHeights = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        Repo.initRepo();
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
         mExpHeader = (ExpandableHeader) findViewById(R.id.exp_header);
         mExpLayout = (ExpandableLayout) findViewById(R.id.exp_layout);
-        mHeaderPager = (CusViewPager) findViewById(R.id.viewPager);
+        mHeaderPager = (ViewPager) findViewById(R.id.viewPager);
         mRecyclerview = (RecyclerView) findViewById(R.id.recyclerview);
-        mHeaderPager.setAdapter(new PagerAdapter(getSupportFragmentManager()));
         setSupportActionBar(mToolbar);
         mRecyclerview.setLayoutManager(new LinearLayoutManager(this));
         mRecyclerview.setAdapter(new SampleAdapter());
-        mExpLayout.setUpWithHeader(mExpHeader);
         mToolbar.post(new Runnable() {
             @Override
             public void run() {
                 mExpLayout.setMinMargin(mToolbar.getHeight());
                 mExpLayout.setThreshold(mToolbar.getHeight());
                 mExpHeader.setThreshold(mToolbar.getHeight());
+            }
+        });
+
+        banners.addAll(Repo.data);
+        for (ImageModel model : banners) {
+            fullHeights.add(Utils.getDisplayWidth(MainActivity.this) * model.getHeight() / model.getWidth());
+        }
+        mHeaderPager.setAdapter(new BannerPagerAdapter(getApplicationContext(), banners));
+        mExpHeader.getMarginLayoutParams().height = fullHeights.get(0);
+
+        mExpLayout.setUpWithHeader(mExpHeader);
+
+        mHeaderPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+                if (position == fullHeights.size() - 1) {
+                    return;
+                }
+
+                //计算ViewPager现在应该的高度,heights[]表示页面高度的数组。
+                int height = (int) ((fullHeights.get(position) == 0 ? fullHeights.get(0) : fullHeights.get(position))
+                        * (1 - positionOffset) +
+                        (fullHeights.get(position + 1) == 0 ? fullHeights.get(0) : fullHeights.get(position + 1))
+                                * positionOffset);
+
+                //为ViewPager设置高度
+                mExpHeader.getLayoutParams().height = height;
+                mExpHeader.requestLayout();
+                mExpLayout.initMargin(mExpHeader.getBottom());
+                mExpLayout.requestLayout();
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
             }
         });
     }
@@ -88,25 +137,41 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    class PagerAdapter extends FragmentPagerAdapter {
+    class BannerPagerAdapter extends PagerAdapter {
 
-        public PagerAdapter(FragmentManager fm) {
-            super(fm);
-        }
+        private List<ImageModel> imageModels;
+        private Context context;
+        private SparseArray<ImageView> mImageArray;
+        private LayoutInflater inflater;
 
-        @Override
-        public Fragment getItem(int position) {
-            if (position == 0) {
-                return PagerFragment.getInstance("http://pic24.nipic.com/20121008/3822951_094451200000_2.jpg");
-            } else {
-                return PagerFragment.getInstance("http://pic24.nipic.com/20121008/3822951_094451200000_2.jpg");
-                // return PagerFragment.getInstance("http://imgsrc.baidu.com/baike/pic/item/7aec54e736d12f2ee289bffe4cc2d5628435689b.jpg");
-            }
+        public BannerPagerAdapter(Context context, List<ImageModel> imageModels) {
+            this.imageModels = imageModels;
+            this.context = context;
+            this.inflater = (LayoutInflater) context.getSystemService(LAYOUT_INFLATER_SERVICE);
+
         }
 
         @Override
         public int getCount() {
-            return 4;
+            return 3;
+        }
+
+        @Override
+        public boolean isViewFromObject(View view, Object object) {
+            return view == object;
+        }
+
+        @Override
+        public Object instantiateItem(ViewGroup container, int position) {
+            ImageView imageView = (ImageView) inflater.inflate(R.layout.layout_banner_image, container, false);
+            Picasso.with(container.getContext()).load(banners.get(position).getUrl()).into(imageView);
+            container.addView(imageView);
+            return imageView;
+        }
+
+        @Override
+        public void destroyItem(ViewGroup container, int position, Object object) {
+            container.removeView((View) object);
         }
     }
 }

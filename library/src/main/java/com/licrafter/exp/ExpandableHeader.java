@@ -13,6 +13,7 @@ public class ExpandableHeader extends FrameLayout {
 
     private HeaderCollapseListener mListener;
     private float mLastedY;
+    private float mLastX;
     private int mThreshold;
 
 
@@ -29,23 +30,41 @@ public class ExpandableHeader extends FrameLayout {
     }
 
     @Override
-    public boolean dispatchTouchEvent(MotionEvent ev) {
+    public boolean onInterceptTouchEvent(MotionEvent ev) {
         float y = ev.getRawY();
+        float x = ev.getRawX();
         switch (ev.getActionMasked()) {
             case MotionEvent.ACTION_DOWN:
                 mLastedY = y;
+                mLastX = x;
+                break;
             case MotionEvent.ACTION_MOVE:
                 float dy = mLastedY - y;
-                if (Math.abs(dy) > mThreshold && dy > 0) {
-                    if (mListener != null) {
-                        mListener.collapse();
-                    }
+                float dx = mLastX - x;
+                if (Math.abs(dy) > Math.abs(dx)) {
+                    mLastedY = y;
+                    return true;
                 }
                 break;
-            case MotionEvent.ACTION_UP:
-                break;
         }
-        return super.dispatchTouchEvent(ev);
+        return super.onInterceptTouchEvent(ev);
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        float y = event.getRawY();
+        switch (event.getActionMasked()) {
+            case MotionEvent.ACTION_DOWN:
+                mLastedY = y;
+                return true;
+            case MotionEvent.ACTION_MOVE:
+                float dy = mLastedY - y;
+                if (Math.abs(dy) > mThreshold && dy > 0 && mListener != null) {
+                    mListener.collapse();
+                }
+                return true;
+        }
+        return super.onTouchEvent(event);
     }
 
     public void setThreshold(int threshold) {
