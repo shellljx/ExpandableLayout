@@ -15,6 +15,7 @@ public class ExpandableHeader extends FrameLayout {
     private float mLastedY;
     private float mLastX;
     private int mThreshold;
+    private boolean mScrolling;
 
 
     public ExpandableHeader(Context context) {
@@ -27,6 +28,16 @@ public class ExpandableHeader extends FrameLayout {
 
     public ExpandableHeader(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+    }
+
+    @Override
+    public boolean dispatchTouchEvent(MotionEvent ev) {
+        switch (ev.getActionMasked()) {
+            case MotionEvent.ACTION_CANCEL:
+            case MotionEvent.ACTION_UP:
+                mScrolling = false;
+        }
+        return super.dispatchTouchEvent(ev);
     }
 
     @Override
@@ -43,7 +54,10 @@ public class ExpandableHeader extends FrameLayout {
                 float dx = mLastX - x;
                 if (Math.abs(dy) > Math.abs(dx)) {
                     mLastedY = y;
+                    mScrolling = false;
                     return true;
+                } else {
+                    mScrolling = true;
                 }
                 break;
         }
@@ -77,15 +91,20 @@ public class ExpandableHeader extends FrameLayout {
     }
 
     public void setHeight(int height) {
+        getMarginLayoutParams().topMargin = 0;
         getMarginLayoutParams().height = height;
         requestLayout();
         if (mListener != null) {
-            mListener.heightChange();
+            mListener.heightChange(getHeight());
         }
     }
 
     public MarginLayoutParams getMarginLayoutParams() {
         return (MarginLayoutParams) getLayoutParams();
+    }
+
+    public boolean isScrolling() {
+        return mScrolling;
     }
 
 
@@ -96,7 +115,7 @@ public class ExpandableHeader extends FrameLayout {
     public interface HeaderCollapseListener {
         void collapse();
 
-        void heightChange();
+        void heightChange(int height);
     }
 
 }

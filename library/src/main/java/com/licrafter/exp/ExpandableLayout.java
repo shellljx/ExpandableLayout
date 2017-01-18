@@ -97,7 +97,11 @@ public class ExpandableLayout extends FrameLayout implements ExpandableHeader.He
                 }
                 return true;
             case MotionEvent.ACTION_UP:
-                fling();
+                if (mHeader != null && mHeader.isScrolling()) {
+
+                } else {
+                    fling();
+                }
                 break;
         }
         return super.onTouchEvent(event);
@@ -134,8 +138,8 @@ public class ExpandableLayout extends FrameLayout implements ExpandableHeader.He
         }
     }
 
-    public void heightChange() {
-        initMargin(mHeader.getBottom());
+    public void heightChange(int height) {
+        initMargin(height);
     }
 
     public void setTopMargin(int topMargin) {
