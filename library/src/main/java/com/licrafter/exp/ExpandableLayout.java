@@ -24,6 +24,7 @@ public class ExpandableLayout extends FrameLayout implements ExpandableHeader.He
     private static final float DEFAULT_FACTOR = 0.5f;
 
     private ExpandableHeader mHeader;
+    private OnLayoutScrollListener mListener;
 
     private int mTouchSlop;
     private int mMinMargin;
@@ -148,6 +149,11 @@ public class ExpandableLayout extends FrameLayout implements ExpandableHeader.He
 
     public void setTopMargin(int topMargin) {
         getMarginLayoutParams().topMargin = topMargin;
+
+        if (mListener != null) {
+            mListener.onScroll(getScrollDistance());
+        }
+
         if (getTopMargin() >= mHeader.getBottom()) {
             mCollapsed = false;
             getMarginLayoutParams().topMargin = mHeader.getBottom();
@@ -164,6 +170,18 @@ public class ExpandableLayout extends FrameLayout implements ExpandableHeader.He
 
     private int getScrollDistance() {
         return mMaxMargin - getTopMargin();
+    }
+
+    public int getThreshold() {
+        return mThreshold;
+    }
+
+    public int getMinMargin() {
+        return mMinMargin;
+    }
+
+    public int getMaxMargin() {
+        return mMaxMargin;
     }
 
     public int getTopMargin() {
@@ -265,5 +283,13 @@ public class ExpandableLayout extends FrameLayout implements ExpandableHeader.He
             }
         }
         return false;
+    }
+
+    public void setOnLayoutScrollListener(OnLayoutScrollListener listener) {
+        mListener = listener;
+    }
+
+    public interface OnLayoutScrollListener {
+        void onScroll(int scrollDistance);
     }
 }
