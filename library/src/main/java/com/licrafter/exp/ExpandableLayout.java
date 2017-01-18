@@ -34,6 +34,7 @@ public class ExpandableLayout extends FrameLayout implements ExpandableHeader.He
     private float mLastedY;
     private boolean mDraging;
     private boolean mCollapsed;//完全遮盖住header为坍塌状态
+    private boolean mSticky;
     private Animator mAnimator;
     private int start;
     private int end;
@@ -69,7 +70,7 @@ public class ExpandableLayout extends FrameLayout implements ExpandableHeader.He
                 break;
             case MotionEvent.ACTION_MOVE:
                 float dy = mLastedY - y;
-                if (!isCollapsed() && Math.abs(dy) > mTouchSlop || isCollapsed() && dy < 0 && isTop()) {
+                if (!mSticky && Math.abs(dy) > mTouchSlop || mSticky && dy < 0 && isTop()) {
                     mLastedY = y;
                     return true;
                 }
@@ -159,8 +160,11 @@ public class ExpandableLayout extends FrameLayout implements ExpandableHeader.He
             getMarginLayoutParams().topMargin = mHeader.getBottom();
         }
         if (getTopMargin() <= mMinMargin) {
+            mSticky = true;
             mCollapsed = true;
             getMarginLayoutParams().topMargin = mMinMargin;
+        } else {
+            mSticky = false;
         }
         if (mHeader != null) {
             mHeader.setTopMargin((int) (-(mMaxMargin - getTopMargin()) * mFactor));
