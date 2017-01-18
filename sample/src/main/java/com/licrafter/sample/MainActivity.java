@@ -1,6 +1,7 @@
 package com.licrafter.sample;
 
 import android.content.Context;
+import android.os.Build;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
@@ -13,6 +14,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -34,6 +36,9 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView mRecyclerview;
     private Toolbar mToolbar;
 
+    private LinearLayout mToolbarLayout;
+    private View mStatusView;
+
     private List<ImageModel> banners = new ArrayList<>();
     private List<Integer> fullHeights = new ArrayList<>();
 
@@ -41,32 +46,43 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        Utils.setTranslucentMode(this);
         Repo.initRepo();
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        mToolbarLayout = (LinearLayout) findViewById(R.id.toolbarLayout);
+        mStatusView = findViewById(R.id.statusBar);
         mExpHeader = (ExpandableHeader) findViewById(R.id.exp_header);
         mExpLayout = (ExpandableLayout) findViewById(R.id.exp_layout);
         mHeaderPager = (ViewPager) findViewById(R.id.viewPager);
         mRecyclerview = (RecyclerView) findViewById(R.id.recyclerview);
         setSupportActionBar(mToolbar);
+        mToolbarLayout.setAlpha(0);
         mRecyclerview.setLayoutManager(new LinearLayoutManager(this));
         mRecyclerview.setAdapter(new SampleAdapter());
         mToolbar.post(new Runnable() {
             @Override
             public void run() {
-                mExpLayout.setMinMargin(mToolbar.getHeight());
-                mExpLayout.setThreshold(mToolbar.getHeight());
-                mExpHeader.setThreshold(mToolbar.getHeight());
+                mExpLayout.setMinMargin(mToolbar.getHeight() + mStatusView.getHeight());
+                mExpLayout.setThreshold(mToolbar.getHeight() + mStatusView.getHeight());
+                mExpHeader.setThreshold(mToolbar.getHeight() + mStatusView.getHeight());
             }
         });
-
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            mStatusView.getLayoutParams().height = Utils.getStatusBarHeight(this);
+        }
         banners.addAll(Repo.data);
         for (ImageModel model : banners) {
             fullHeights.add(Utils.getDisplayWidth(MainActivity.this) * model.getHeight() / model.getWidth());
         }
-        mHeaderPager.setAdapter(new BannerPagerAdapter(getApplicationContext(), banners));
+        mHeaderPager.setAdapter(new BannerPagerAdapter(getApplicationContext()));
         mExpHeader.setHeight(fullHeights.get(0));
         mExpLayout.setUpWithHeader(mExpHeader);
-        Utils.hideSystemUI(this);
+        mExpLayout.setOnLayoutScrollListener(new ExpandableLayout.OnLayoutScrollListener() {
+            @Override
+            public void onScroll(int scrollDistance) {
+                changeToolbar(mExpLayout.isCollapsed(), scrollDistance);
+            }
+        });
         mHeaderPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
@@ -85,7 +101,9 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onPageSelected(int position) {
-
+                if (position == 1) {
+                    android.util.Log.d("ljx", "layout2");
+                }
             }
 
             @Override
@@ -95,12 +113,13 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    @Override
-    public void onWindowFocusChanged(boolean hasFocus) {
-        super.onWindowFocusChanged(hasFocus);
-        if (hasFocus) {
-            Utils.hideSystemUI(this);
-        }
+    public void changeToolbar(boolean collapse, int distance) {
+        float alpha = (float) (mExpLayout.getThreshold() - mExpLayout.getTopMargin() + mExpLayout.getMinMargin()) / mExpLayout.getThreshold();
+        setToolbarAlpha(alpha < 0 ? 0 : alpha);
+    }
+
+    public void setToolbarAlpha(float alpha) {
+        mToolbarLayout.setAlpha(alpha);
     }
 
     public class SampleAdapter extends RecyclerView.Adapter {
@@ -142,14 +161,9 @@ public class MainActivity extends AppCompatActivity {
 
     class BannerPagerAdapter extends PagerAdapter {
 
-        private List<ImageModel> imageModels;
-        private Context context;
-        private SparseArray<ImageView> mImageArray;
         private LayoutInflater inflater;
 
-        public BannerPagerAdapter(Context context, List<ImageModel> imageModels) {
-            this.imageModels = imageModels;
-            this.context = context;
+        public BannerPagerAdapter(Context context) {
             this.inflater = (LayoutInflater) context.getSystemService(LAYOUT_INFLATER_SERVICE);
 
         }

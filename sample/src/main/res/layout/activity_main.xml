@@ -30,8 +30,5 @@
             android:layout_height="match_parent"/>
     </com.licrafter.exp.ExpandableLayout>
 
-    <include
-        layout="@layout/include_toolbar"
-        android:visibility="invisible"
-        />
+    <include layout="@layout/include_toolbar"/>
 </FrameLayout>
