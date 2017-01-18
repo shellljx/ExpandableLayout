@@ -74,7 +74,7 @@ public class ExpandableHeader extends FrameLayout {
             case MotionEvent.ACTION_MOVE:
                 float dy = mLastedY - y;
                 if (Math.abs(dy) > mThreshold && dy > 0 && mListener != null) {
-                    mListener.collapse();
+                    mListener.onHeaderCollapse();
                 }
                 return true;
         }
@@ -95,7 +95,7 @@ public class ExpandableHeader extends FrameLayout {
         getMarginLayoutParams().height = height;
         requestLayout();
         if (mListener != null) {
-            mListener.heightChange(getHeight());
+            mListener.onHeaderHeightChange(getHeight());
         }
     }
 
@@ -113,9 +113,9 @@ public class ExpandableHeader extends FrameLayout {
     }
 
     public interface HeaderCollapseListener {
-        void collapse();
+        void onHeaderCollapse();
 
-        void heightChange(int height);
+        void onHeaderHeightChange(int height);
     }
 
 }

@@ -107,6 +107,10 @@ public class ExpandableLayout extends FrameLayout implements ExpandableHeader.He
         return super.onTouchEvent(event);
     }
 
+    public void collapse() {
+        startFlingAnimation(getTopMargin(), mMinMargin);
+    }
+
     private void fling() {
         start = getTopMargin();
         if (mCollapsed) {
@@ -125,7 +129,7 @@ public class ExpandableLayout extends FrameLayout implements ExpandableHeader.He
         startFlingAnimation(start, end);
     }
 
-    public void collapse() {
+    public void onHeaderCollapse() {
         startFlingAnimation(getTopMargin(), mMinMargin);
     }
 
@@ -138,7 +142,7 @@ public class ExpandableLayout extends FrameLayout implements ExpandableHeader.He
         }
     }
 
-    public void heightChange(int height) {
+    public void onHeaderHeightChange(int height) {
         initMargin(height);
     }
 
