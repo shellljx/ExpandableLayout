@@ -95,7 +95,7 @@ public class ExpandableHeader extends FrameLayout {
         getMarginLayoutParams().height = height;
         requestLayout();
         if (mListener != null) {
-            mListener.onHeaderHeightChange(getHeight());
+            mListener.onHeaderHeightChange(height);
         }
     }
 
