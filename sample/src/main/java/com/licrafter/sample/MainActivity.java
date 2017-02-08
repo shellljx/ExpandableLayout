@@ -9,7 +9,6 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -70,12 +69,6 @@ public class MainActivity extends AppCompatActivity {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             mStatusView.getLayoutParams().height = Utils.getStatusBarHeight(this);
         }
-        banners.addAll(Repo.data);
-        for (ImageModel model : banners) {
-            fullHeights.add(Utils.getDisplayWidth(MainActivity.this) * model.getHeight() / model.getWidth());
-        }
-        mHeaderPager.setAdapter(new BannerPagerAdapter(getApplicationContext()));
-        mExpHeader.setHeight(fullHeights.get(0));
         mExpLayout.setUpWithHeader(mExpHeader);
         mExpLayout.setOnLayoutScrollListener(new ExpandableLayout.OnLayoutScrollListener() {
             @Override
@@ -83,27 +76,23 @@ public class MainActivity extends AppCompatActivity {
                 changeToolbar(mExpLayout.isCollapsed(), scrollDistance);
             }
         });
+        loadData();
         mHeaderPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
                 if (position == fullHeights.size() - 1) {
                     return;
                 }
-
                 //计算ViewPager现在应该的高度,heights[]表示页面高度的数组。
                 int height = (int) ((fullHeights.get(position) == 0 ? fullHeights.get(0) : fullHeights.get(position))
                         * (1 - positionOffset) +
                         (fullHeights.get(position + 1) == 0 ? fullHeights.get(0) : fullHeights.get(position + 1))
                                 * positionOffset);
-
                 mExpHeader.setHeight(height);
             }
 
             @Override
             public void onPageSelected(int position) {
-                if (position == 1) {
-                    android.util.Log.d("ljx", "layout2");
-                }
             }
 
             @Override
@@ -111,6 +100,20 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
+    }
+
+    private void loadData(){
+        mToolbar.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                banners.addAll(Repo.data);
+                for (ImageModel model : banners) {
+                    fullHeights.add(Utils.getDisplayWidth(MainActivity.this) * model.getHeight() / model.getWidth());
+                }
+                mHeaderPager.setAdapter(new BannerPagerAdapter(getApplicationContext()));
+                mExpHeader.setHeight(fullHeights.get(0));
+            }
+        },1000);
     }
 
     public void changeToolbar(boolean collapse, int distance) {
@@ -170,7 +173,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public int getCount() {
-            return 3;
+            return 1;
         }
 
         @Override

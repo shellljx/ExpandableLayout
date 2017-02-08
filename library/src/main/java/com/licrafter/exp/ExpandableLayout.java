@@ -75,8 +75,6 @@ public class ExpandableLayout extends FrameLayout implements ExpandableHeader.He
                     return true;
                 }
                 break;
-            case MotionEvent.ACTION_UP:
-                break;
         }
         return super.onInterceptTouchEvent(ev);
     }
@@ -100,7 +98,7 @@ public class ExpandableLayout extends FrameLayout implements ExpandableHeader.He
                 return true;
             case MotionEvent.ACTION_UP:
                 if (mHeader != null && mHeader.isScrolling()) {
-
+                    //do nothing.
                 } else {
                     fling();
                 }
@@ -109,6 +107,9 @@ public class ExpandableLayout extends FrameLayout implements ExpandableHeader.He
         return super.onTouchEvent(event);
     }
 
+    /**
+     * 使header坍塌
+     */
     public void collapse() {
         startFlingAnimation(getTopMargin(), mMinMargin);
     }
@@ -131,6 +132,7 @@ public class ExpandableLayout extends FrameLayout implements ExpandableHeader.He
         startFlingAnimation(start, end);
     }
 
+    @Override
     public void onHeaderCollapse() {
         startFlingAnimation(getTopMargin(), mMinMargin);
     }
@@ -144,6 +146,7 @@ public class ExpandableLayout extends FrameLayout implements ExpandableHeader.He
         }
     }
 
+    @Override
     public void onHeaderHeightChange(int height) {
         initMargin(height);
     }
@@ -190,6 +193,14 @@ public class ExpandableLayout extends FrameLayout implements ExpandableHeader.He
 
     public int getTopMargin() {
         return getMarginLayoutParams().topMargin;
+    }
+
+    public void setFactor(float factor) {
+        mFactor = factor;
+    }
+
+    public float getFactor() {
+        return mFactor;
     }
 
     private MarginLayoutParams getMarginLayoutParams() {
