@@ -3,6 +3,7 @@ package com.licrafter.exp;
 import android.animation.Animator;
 import android.animation.ObjectAnimator;
 import android.content.Context;
+import android.support.v4.widget.NestedScrollView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
@@ -256,6 +257,9 @@ public class ExpandableLayout extends FrameLayout implements ExpandableHeader.He
         if (scrollableView instanceof WebView) {
             return isWebViewTop((WebView) scrollableView);
         }
+        if (scrollableView instanceof NestedScrollView){
+            return isNestScrollViewTop((NestedScrollView) scrollableView);
+        }
         return true;
     }
 
@@ -271,6 +275,14 @@ public class ExpandableLayout extends FrameLayout implements ExpandableHeader.He
     }
 
     private boolean isScrollViewTop(ScrollView scrollView) {
+        if (scrollView != null) {
+            int scrollViewY = scrollView.getScrollY();
+            return scrollViewY <= 0;
+        }
+        return false;
+    }
+
+    private boolean isNestScrollViewTop(NestedScrollView scrollView){
         if (scrollView != null) {
             int scrollViewY = scrollView.getScrollY();
             return scrollViewY <= 0;
